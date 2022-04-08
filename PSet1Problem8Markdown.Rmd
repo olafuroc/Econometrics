@@ -1,0 +1,35 @@
+---
+title: "EconometricsPSet1"
+author: "Olafur Oddsson Cricco"
+date: "4/7/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Econometrics Problem Set 1 Problem 8
+
+8a)
+
+```{r}
+library(ggplot2)
+n=10000
+mu = 0
+sigma = 1
+x = rnorm(n, mu, sigma)
+hist(x)
+```
+
+8b)
+
+```{r}
+
+min_y = -1
+max_y = 1
+y = runif(n, min = min_y, max = max_y)
+hist(y)
+
+```
+
