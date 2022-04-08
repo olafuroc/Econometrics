@@ -13,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 8a)
 
-```{r}
+```{r, include = TRUE}
 library(ggplot2)
 n=10000
 mu = 0
@@ -24,7 +24,7 @@ hist(x)
 
 8b)
 
-```{r}
+```{r, include = TRUE}
 
 min_y = -1
 max_y = 1
@@ -32,4 +32,23 @@ y = runif(n, min = min_y, max = max_y)
 hist(y)
 
 ```
+
+## Problem 9 
+
+b)
+
+```{r,include=TRUE}
+my_rbernoulli <- function(n,p) {
+  U = runif(n, min = 0, max = 1)
+  x = ifelse(U>p, 1, 0)
+  return(x)
+}
+  
+h = my_rbernoulli(10000, 0.5)
+
+length(h) == 10000
+mean(h) 
+```
+
+
 
