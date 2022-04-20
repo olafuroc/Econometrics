@@ -1,0 +1,64 @@
+---
+title: "PSet2P5_6"
+author: "Olafur Oddsson Cricco"
+date: "4/19/2022"
+output: pdf_document
+---
+
+## Econometrics problem set 2 coding problems
+```{r, echo = TRUE}
+df <- read.csv("~/UChicago/Spring 2022/Econometrics/Econometrics/ak91.csv")
+yrs_educ <- df$YRS_EDUC
+wkly_wage <- df$WKLY_WAGE
+has_college_degree <- yrs_educ == 16
+```
+##5a)
+```{r, echo = TRUE}
+df$x = ifelse(df$YRS_EDUC ==16, 1, 0)
+p_est = sum(df$x)/329509
+p_est
+## p_est = 0.1084857
+```
+##5b)
+```{r, echo = TRUE}
+df$y_x = df$WKLY_WAGE*df$x
+df$e_y_x = df$y_x/329509
+mu_college = sum(df$e_y_x)/p_est
+mu_college
+##mu_college = 594.4866
+```
+
+
+##5c) computing std error
+```{r, echo = TRUE}
+df$y_2 = (df$WKLY_WAGE)^2 
+y_2_x = sum(df$y_2*df$x)
+var = y_2_x/sum(df$x) - (mu_college)^2
+se_college = sqrt(var/p_est)/sqrt(35747)
+se_college
+```
+
+## extra credit question
+##6a)
+```{r, echo = TRUE}
+my_confint <- function(mu_hat, se, alpha) {
+  z_alpha = qnorm((1-alpha/2))
+  confint = c(mu_hat - se*z_alpha, mu_hat + se*z_alpha)
+  return (confint)
+}
+vec = my_confint(mu_college, 5 , 0.01) # [1] 588.6420 600.3312
+607.3657 %in% vec
+5 %in% matrix(c(4, 8))
+```
+#6b) Define a custom function that returns TRUE if mu_0 is not in confint
+
+```{r, echo = TRUE}
+my_testrejects <- function(confint, mu_0) {
+  is_in_confint <- ifelse(mu_0, 1, 0)
+  is_rejected <- ifelse(is_in_confint == 1, TRUE, FALSE)
+  return(is_rejected)
+}
+confint_01 = my_confint(mu_college, 5, 0.01)
+my_testrejects(my_confint(mu_college, 5, 0.01), 600)
+
+```
