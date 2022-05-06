@@ -1,0 +1,153 @@
+---
+title: "Problem Set 3 Problems 6 and 7"
+author: "Olafur Oddsson Cricco"
+date: "5/5/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Coding Questions
+
+## Question 6
+
+```{r}
+df <- read.csv('ak91.csv')
+n <- nrow(df)
+yrs_educ <- df$YRS_EDUC
+wkly_wage <- df$WKLY_WAGE
+```
+
+### a)
+
+${\hat\alpha = \frac{1}{n}\sum{Y_i} - \frac{1}{n}\sum{X_i} * \hat\beta}$
+
+${\hat\beta = \frac{(\frac{1}{n}\sum{X_iY_i} - \frac{1}{n}\sum{X_i}\frac{1}{n}\sum{Y_i})}{(\frac{1}{n}\sum{X_i^2} - (\frac{1}{n}\sum{X_i})^2}}$
+
+### b)
+
+```{r}
+beta_num <- ((1/n)*sum(wkly_wage*yrs_educ) - (1/n)*sum(wkly_wage)*(1/n)*sum(yrs_educ))
+beta_denom <- (1/n)*sum(yrs_educ^2) - ((1/n)*sum(yrs_educ))^2
+beta <- beta_num/beta_denom
+beta
+alpha <- (1/n)*sum(wkly_wage) - (1/n)*sum(yrs_educ)*beta
+alpha
+```
+
+The economic interpretation of the beta estimate is that an approximate increase of 29.6224 in expected weekly wages is associated with a one year increase in education.
+
+### c)
+
+```{r}
+##c)
+alpha + beta*16
+```
+
+Yes, the result differs from the solution in 5b). The value in this problem set is an estimate extrapolated from BLP estimates, whereas the value in 5b) was an analog estimator that only incorporated the weekly wage of those who had 16 years of education.
+
+### d)
+
+```{r}
+##d)
+blp_yx <- alpha + beta*yrs_educ
+epsilon <- wkly_wage - blp_yx
+se_num <- sqrt(mean(epsilon^2*(yrs_educ - mean(yrs_educ))^2))
+se_denom <- sqrt(n)*var(yrs_educ)
+se <- se_num/se_denom
+se
+```
+
+The standard error is 0.2101695.
+
+### e)
+
+```{r}
+##e)
+t = (beta - 31)/se
+abs(t)
+```
+
+The appropriate test statistic is t = 6.554693.
+
+### f)
+
+```{r}
+##f)
+2*pnorm(t)
+```
+
+The p-value associated with the test from part e) is 5.575647 \* 10\^(-11)
+
+### g
+
+Yes, the test rejects at a 10% significance level, since the p-value calculated is less than 0.1. The economic interpretation of the result is that there is evidence to support the claim that the approximate change in expected weekly wage associated with a one year increase in education is not \$31.
+
+## Question 7
+
+### a)
+
+```{r}
+##Question 7 - extra credit
+##a
+my_simplecoef <- function(y,x) {
+  beta_two <- cov(y,x)/var(x)
+  alpha_two <- mean(y) - beta*mean(x)
+  return(c(alpha_two, beta_two))
+}
+coef <- my_simplecoef(wkly_wage, yrs_educ)
+coef
+```
+
+### b)
+
+```{r}
+##b
+my_simpleblp <- function(coef, x) {
+  blp <- coef[1] + coef[2]*x
+  return(blp)
+}
+mean(wkly_wage) - mean(my_simpleblp(coef, yrs_educ))
+```
+
+### c)
+
+```{r}
+##c
+my_simplese <- function(coef, y, x) {
+  eps <- wkly_wage - my_simpleblp(coef,x)
+  se_num <- sqrt(mean(eps^2*(x - mean(x))^2))
+  se_denom <- sqrt(n)*var(x)
+  se <- se_num/se_denom
+  return(se)
+}
+se <- my_simplese(coef, wkly_wage, yrs_educ)
+se
+```
+
+### d)
+
+```{r}
+##d
+my_simpleteststat <- function(b, s) {
+  t_stat <- abs(b/s)
+  p_value <- 2*pnorm(t_stat, lower.tail = FALSE)
+  return(c(t_stat, p_value))
+}
+my_simpleteststat((coef[2]-31), se)
+```
+
+### e)
+
+```{r}
+##e - did they specify that we test the values against the null hypothesis H0 = 31?
+my_simpleols <- function(y,x) {
+  alpha_beta <- my_simplecoef(y,x)
+  ols_se <- my_simplese(alpha_beta, y, x)
+  test <- my_simpleteststat(alpha_beta[2] - 31, ols_se)
+  return(c(alpha_beta[2], ols_se, test[1], test[2]))
+}
+my_simpleols(wkly_wage, yrs_educ)
+```
