@@ -1,0 +1,91 @@
+---
+title: "Problem Set 4 Problem 6"
+author: "Olafur Oddsson Cricco"
+date: "5/22/022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(readr)
+data <- read_csv("C:/Users/olafu/Downloads/bw06.csv")
+dat <- as.matrix(data)
+
+
+y <- dat[, 'birthweight']
+w <- dat[, "cigsdaily"]
+x <- cbind(1, dat[, c('boy', 'age', 'highschool',
+                      'somecollege', 'college')])
+x_tld <- dat[, 'married']
+tw = t(w)
+```
+
+
+```{r}
+##a)
+
+beta =(1/9800)*sum(y%*%w)/((1/9800)*sum(w%*%t(w)))
+beta
+alpha = mean(y) - mean(x)*beta
+alpha
+
+
+```
+
+Economic interpretation: the approximate change in expected birthweight associated with an increase of one cigarette per day smoked by a mother is 0.1930429 grams.
+
+```{r}
+##b)
+
+y_tilda = y - mean(x)*((1/9800)*sum(y%*%x))/((1/9800)*sum(x%*%t(x)))
+w_tilda = w - mean(x)*((1/9800)*sum(w%*%x))/((1/9800)*sum(x%*%t(x)))
+beta_w_cov = (1/9800)*sum(y_tilda*w_tilda) - (1/9800)*sum(w_tilda)*(1/9800)*sum(y_tilda)
+beta_w_var = (1/9800)*sum(w_tilda^2) - ((1/9800)*sum(w_tilda))^2
+
+beta_w_two = beta_w_cov/beta_w_var
+beta_w_two
+```
+
+Economic interpretation: the approximate change in expected birth weight of a child associated with an increase of one cigarette per day smoked by their mother is -12.77238, conditional on the age and education level of the mother and sex of the child.
+
+c)
+
+Yes, because we conducted a multiple linear regression estimation in part b) that conditioned on factors such as age of the mother and education level. The new coefficient is thus more accurate in that it reflects changes within a very similar demographic group.
+
+d)
+
+The interviewer is assuming causal identification. The correct interpretation of the result is that smoking one cigarette per daiy is associated with an approximate decrease in birthweight of babies of -12.77238 grams.
+
+e) The selection on observables assumption assumes that smoking daily is independent of factors other than infant's gender, mother's age, and education level.
+
+Common support assumes that there are both treated/untreated mothers with the same X, i.e. there are smokers and non-smokers in each of the categories of X: infant's gender is male/female, age, and education level. 
+
+f)
+
+```{r}
+data1 <- subset(data, cigsdaily == 0, data$boy == 1, select = 
+                  c(age))
+
+data2 <- subset(data, cigsdaily == 0, data$boy == 1, select = 
+                  c(highschool, somecollege, college, boy))
+
+data3 <- subset(data, cigsdaily == 10, data$boy == 1, select = 
+                  c(age))
+
+data4 <- subset(data, cigsdaily == 10, data$boy == 1, select = 
+                  c(highschool, somecollege, college, boy))
+
+data5 <- subset(data, cigsdaily == 20, data$boy == 1, select = 
+                  c(age))
+
+data6 <- subset(data, cigsdaily == 20, data$boy == 1, select = 
+                  c(highschool, somecollege, college, boy))
+
+```
+
+By viewing the dataframes above, we can verify that there exists at least one observation for each X and W pair. There is also a good range of mothers' ages for each cigsdaily value. We can thus verify that common support holds.
+
